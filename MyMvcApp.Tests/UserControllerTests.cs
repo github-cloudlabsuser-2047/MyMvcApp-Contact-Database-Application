@@ -7,26 +7,29 @@ using Xunit;
 
 namespace MyMvcApp.Tests.Controllers
 {
-    public class UserControllerTest
+    public class UserControllerTests
     {
         private UserController _controller;
         private List<User> _userList;
 
-        public UserControllerTest()
+        public UserControllerTests()
         {
             _userList = new List<User>
             {
                 new User { Id = 1, Name = "John Doe", Email = "john@example.com", Phone = "1234567890" },
                 new User { Id = 2, Name = "Jane Doe", Email = "jane@example.com", Phone = "0987654321" }
             };
-            UserController.userlist = _userList;
             _controller = new UserController();
+            UserController.userlist = _userList;
         }
 
         [Fact]
         public void Index_ReturnsViewResult_WithListOfUsers()
         {
+            // Act
             var result = _controller.Index();
+
+            // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsAssignableFrom<List<User>>(viewResult.ViewData.Model);
             Assert.Equal(2, model.Count);
@@ -35,7 +38,10 @@ namespace MyMvcApp.Tests.Controllers
         [Fact]
         public void Details_ReturnsViewResult_WithUser()
         {
+            // Act
             var result = _controller.Details(1);
+
+            // Assert
             var viewResult = Assert.IsType<ViewResult>(result);
             var model = Assert.IsAssignableFrom<User>(viewResult.ViewData.Model);
             Assert.Equal("John Doe", model.Name);
@@ -51,8 +57,13 @@ namespace MyMvcApp.Tests.Controllers
         [Fact]
         public void Create_Post_ReturnsRedirectToActionResult_WhenModelStateIsValid()
         {
+            // Arrange
             var newUser = new User { Id = 3, Name = "Sam Smith", Email = "sam@example.com", Phone = "1122334455" };
+
+            // Act
             var result = _controller.Create(newUser);
+
+            // Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("Index", redirectToActionResult.ActionName);
             Assert.Equal(3, UserController.userlist.Count);
@@ -77,11 +88,17 @@ namespace MyMvcApp.Tests.Controllers
         [Fact]
         public void Edit_Post_ReturnsRedirectToActionResult_WhenModelStateIsValid()
         {
+            // Arrange
             var updatedUser = new User { Id = 1, Name = "John Smith", Email = "johnsmith@example.com", Phone = "1234567890" };
+
+            // Act
             var result = _controller.Edit(1, updatedUser);
+
+            // Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("Index", redirectToActionResult.ActionName);
-            Assert.Equal("John Smith", UserController.userlist.First(u => u.Id == 1).Name);
+            var user = UserController.userlist.FirstOrDefault(u => u.Id == 1);
+            Assert.Equal("John Smith", user.Name);
         }
 
         [Fact]
@@ -103,10 +120,13 @@ namespace MyMvcApp.Tests.Controllers
         [Fact]
         public void DeleteConfirmed_ReturnsRedirectToActionResult()
         {
+            // Act
             var result = _controller.DeleteConfirmed(1);
+
+            // Assert
             var redirectToActionResult = Assert.IsType<RedirectToActionResult>(result);
             Assert.Equal("Index", redirectToActionResult.ActionName);
-            Assert.Equal(1, UserController.userlist.Count);
+            Assert.Single(UserController.userlist);
         }
     }
 }
